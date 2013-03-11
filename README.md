@@ -1,10 +1,10 @@
 This project does the following:
 
-  monitor a set of github repos
-  watch for pull requests where an admin has made the comment 'schedule_for_testing'
-  submit these pull requests into jenkins jobs
-  monitor those jenkins jobs
-  publish the results of the tests as a gist that is linked to by the PR in a comment
+  - monitor a set of github repos
+  - watch for pull requests where an admin has made the comment 'schedule_for_testing'
+  - submit these pull requests into jenkins jobs
+  - monitor those jenkins jobs
+  = publish the results of the tests as a gist that is linked to by the PR in a comment
 
 
 this project is meant to be general purpose, but it was written specifically to run CI tests for modules,
