@@ -56,6 +56,7 @@ class JenkinsBuildProcessor < TorqueBox::Messaging::MessageProcessor
     # You may optionally override this to interrogate the exception. If you do, 
     # you're responsible for re-raising it to force a retry.
     puts exception
+    puts exception.backtrace
   end
 
 end

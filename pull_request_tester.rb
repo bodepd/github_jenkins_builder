@@ -36,18 +36,18 @@ module PullRequestTester
                 return true
               end
             end
+            puts "Did not find comment matching #{expected_body} for #{pr['number']}"
           end
         else
-          #puts "PR: #{pr['number']} from #{pr['base']['repo']['name']} has no issue commments.\
-          #I will not test it. We only test things approved."
+          puts "PR: #{pr['number']} from #{pr['base']['repo']['name']} has no issue commments.\
+          I will not test it. We only test things approved."
         end
       else
-        #puts "PR: #{pr['number']} from #{pr['base']['repo']['name']} cannot be merged, will not test"
+        puts "PR: #{pr['number']} from #{pr['base']['repo']['name']} cannot be merged, will not test"
       end
     else
-      #puts "PR: #{pr['number']} from #{pr['base']['repo']['name']} was already merged, will not test"
+      puts "PR: #{pr['number']} from #{pr['base']['repo']['name']} was already merged, will not test"
     end
-    #puts "Did not find comment matching #{expected_body}"
     return false
   end
 

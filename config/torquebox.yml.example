@@ -7,44 +7,44 @@ messaging:
         server:   '127.0.0.1'
         port:     8080
         user:     jenkins_user
-        password: XXX
+        password: XXXX
 jobs:
   jenkins.build.watcher:
     job: JenkinsBuildWatcher
-    cron: '*/30 * * * * ?'
+    cron: '0 */2 * * * ?'
     timeout: 500000 ms
     description: monitor queued build jobs to see when they can be published
     config:
       server:   '127.0.0.1'
       port:     8080
       user:     jenkins_user
-      password: XXX
-      github_login: ci-user
-      github_password: XXX
+      password: XXXX
+      github_login: puppet-openstack-ci-user
+      github_password: XXXX
       test_message: schedule_for_testing
-      account: bodepd
-      repo_prefix: ''
+      account: puppetlabs
+      repo_prefix: 'puppetlabs-'
   github.scanner:
     job: GithubScanner
     # run this shit every 30 minutes
-   #cron: '0 */30 * * * ?'
-    cron: '*/30 * * * * ?'
+    cron: '0 */45 * * * ?'
     # 6 minute timeout?
     timeout: 500000 ms
     description: scan github for pull requests that need to be tested, add ready prs to the launcher queue
     config: 
       project_names:
-        - test_repo
-#        - cinder
-#        - nova
-#        - glance
-#        - openstack
-#        - keystone
-#        - horizon
+#        - test_repo
+        - cinder
+        - nova
+        - glance
+        - openstack
+        - keystone
+        - horizon
       admin_users:
         - bodepd
-      github_login: ci-user
-      github_password: XXX
+      github_login: puppet-openstack-ci-user
+      github_password: XXXX
       test_message: schedule_for_testing
-      account: bodepd
-      repo_prefix: ''
+      account: puppetlabs
+      repo_prefix: 'puppetlabs-'
+      job_name: external_openstack_test_driver

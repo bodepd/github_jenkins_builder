@@ -14,18 +14,27 @@ class JenkinsBuildWatcher
     @port     = options['port']
     @user     = options['user']
     @password = options['password'] 
+
     @github_login    = options['github_login']
     @github_password = options['github_password']
     @account         = options['account']
     @repo_prefix     = options['repo_prefix']
+
     @client   = JenkinsApi::Client.new(
       :server_ip   => @server,
       :server_port => @port,
       :username    => @user,
       :password    => @password
     )
+
     @build_cache = TorqueBox::Infinispan::Cache.new(
       :name     => 'build_cache'
+    )
+    @success_cache = TorqueBox::Infinispan::Cache.new(
+      :name     => 'success_cache'
+    )
+    @fail_cache = TorqueBox::Infinispan::Cache.new(
+      :name     => 'fail_cache'
     )
   end
 
@@ -34,8 +43,6 @@ class JenkinsBuildWatcher
    
     # access the cache that stores the current state of all builds to watch
     keyset = @build_cache.keys
-
-    puts keyset
 
     keyset.each do |key|
       body = YAML.load(@build_cache.get(key))
@@ -83,8 +90,8 @@ puts 'about to publish results'
       publish_results(
         body['project_name'],
         body['pull_request'],
-        result,
-        console_output['output'].split("\n"),
+        "#{result} for #{body.inspect}",
+        console_output['output'],
         { :login => @github_login, :password => @github_password },
         @account,
         @repo_prefix
@@ -126,6 +133,13 @@ puts 'about to publish results'
         end
         if result = details[1]['result']
           publish_build_results(body, result)
+          if result == 'SUCCESS'
+            @success_cache.put(body['uuid'], body.merge('state' => 'succeeded').to_yaml) 
+          elsif result == 'FAILURE'
+            @fail_cache.put(body['uuid'], body.merge('state' => 'failed').to_yaml)
+          else
+            "Build finished with status, #{result}, which is not a known state..."
+          end
           @build_cache.remove(body['uuid'])
         else
           puts "Build #{body['uuid']} has not finished, we'll check again later"
