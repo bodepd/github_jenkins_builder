@@ -24,7 +24,7 @@ class SinatraSession < Sinatra::Base
       :name     => 'success_cache'
     )
     @fail_cache = TorqueBox::Infinispan::Cache.new(
-      :name     => 'fail_cachce'
+      :name     => 'fail_cache'
     )
 
     output = ''
