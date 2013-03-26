@@ -37,8 +37,28 @@ class SinatraSession < Sinatra::Base
     output
   end
 
-  get '/rebuild_failures' do
-    'rebuilding failed jobs is not yet supported'
+  get '/rebuild' do
+    unless @queue = fetch('/queues/launcher')
+      # initial the topic queue if it does not yet exist
+      puts 'for some reason, we have to create our queue'
+      @queue = TorqueBox::Messaging::Queue.new('/queues/launcher')
+    end
+
+    @build_cache = TorqueBox::Infinispan::Cache.new(
+      :name     => 'build_cache'
+    )
+    uuid = SecureRandom.uuid
+    build_params  = {
+      'job_name'        => params['job_name'],
+      'project_name'    => params['project_name'],
+      'pull_request'    => params['pull_request'],
+      'operatingsystem' => params['operatingsystem'],
+      'test_mode'       => params['test_mode'],
+      'uuid'            => uuid
+    }
+    @queue.publish(build_params)
+    @build_cache.put(uuid, build_params.merge('state' => 'triggered').to_yaml)    
+    "publishing #{build_params.inspect} to queue"
   end
 
   def print_cache(cache)
@@ -51,6 +71,10 @@ class SinatraSession < Sinatra::Base
         output << "\n<tr>\n<td>"
         body_hash = YAML.load(cache.get(key))
         output << headers.collect {|x| body_hash[x]  }.join('</td><td>')
+        inputs = ['job_name', 'project_name', 'pull_request', 'operatingsystem', 'test_mode'].collect do |name|
+            "<input type='hidden' name='#{name}' value='#{body_hash[name]}'>"
+        end.join('')
+        output << "<td><form method='get' action='rebuild'>#{inputs}<input type='submit' value='resubmit test'></form></td>"
         output << "</td>\n<tr>"
       end
       output << '</table>'
