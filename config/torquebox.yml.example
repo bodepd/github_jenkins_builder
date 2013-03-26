@@ -11,7 +11,7 @@ messaging:
 jobs:
   jenkins.build.watcher:
     job: JenkinsBuildWatcher
-    cron: '0 */2 * * * ?'
+    cron: '0 */45 * * * ?'
     timeout: 500000 ms
     description: monitor queued build jobs to see when they can be published
     config:
